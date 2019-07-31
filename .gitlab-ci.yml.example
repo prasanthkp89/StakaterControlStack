@@ -10,7 +10,7 @@ variables:
   TARGET: "install-dry-run"
 
   # k8s cluster configuration variables
-  NAMESPACE: "global"
+  NAMESPACE: "control"
 
 # configuring pre-requisites required during pipeline execution
 before_script:
