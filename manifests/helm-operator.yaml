@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stakater-helm-operator  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: stakater-helm-operator
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: stakater-helm-operator
+      annotations:
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: helm-operator
+      containers:
+      - name: helm-operator
+        image: "docker.io/weaveworks/helm-operator:0.9.2"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3030
+        args:
+        - --update-chart-deps=true
+        - --log-release-diffs=false
+        - --tiller-namespace=kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: helm-operator
+  namespace: control
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: helm-operator-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: helm-operator
+    namespace: control

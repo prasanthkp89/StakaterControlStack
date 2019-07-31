@@ -1,0 +1,42 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: stakater-control-forecastle
+  namespace: control
+spec:
+  releaseName: stakater-control-forecastle
+  chart:
+    repository: https://stakater.github.io/stakater-charts/
+    name: forecastle
+    version: 1.0.23
+  values:
+    forecastle:
+      namespace: control
+      deployment:
+        replicas: 1
+        revisionHistoryLimit: 2
+        annotations:
+          authproxy.stakater.com/enabled: "true"
+          authproxy.stakater.com/upstream-url: "http://127.0.0.1:3000"
+          authproxy.stakater.com/source-service-name: forecastle
+          authproxy.stakater.com/redirection-url: "https://forecastle.REPLACE_NAMESPACE.REPLACE_DOMAIN_NAME"
+          authproxy.stakater.com/listen: "0.0.0.0:80"
+      service:
+        expose: "true"
+        annotations:
+          config.xposer.stakater.com/IngressURLPath: "/"
+          config.xposer.stakater.com/Domain: REPLACE_DOMAIN_NAME
+          config.xposer.stakater.com/IngressNameTemplate: "{{.Service}}-{{.Namespace}}"
+          config.xposer.stakater.com/IngressURLTemplate: "{{.Service}}.{{.Namespace}}.{{.Domain}}"
+          xposer.stakater.com/annotations: |-
+            kubernetes.io/ingress.class: external-ingress
+            ingress.kubernetes.io/rewrite-target: /
+            ingress.kubernetes.io/force-ssl-redirect: true
+            exposeIngressUrl: globally
+      config:
+        namespaces:
+        headerBackground: "#173F5F"
+        headerForeground: "white"
+        title: "Forecastle - Stakater"
+      proxy:
+        enabled: true

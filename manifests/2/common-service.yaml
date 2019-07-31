@@ -1,0 +1,38 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: stakater-control-common-service
+  namespace: control
+spec:
+  releaseName: stakater-control-common-service
+  chart:
+    repository: https://chartmuseum.release.stakater.com
+    name: common-service
+    version: 0.0.10
+  values:
+    commonService:
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "app"
+        effect: "NoSchedule"
+      labels:
+        group: REPLACE_GROUP
+        provider: REPLACE_PROVIDER
+      deployment:
+        replicas: 1
+        podLabels:      
+          app: common-service
+        containerName: common-service
+        imagePullSecrets: docker-registry-secret
+      service:
+        expose: true
+        port: 8080
+        annotations:
+          config.xposer.stakater.com/Domain: REPLACE_DOMAIN_NAME
+          config.xposer.stakater.com/IngressNameTemplate: '{{.Service}}-{{.Namespace}}'
+          config.xposer.stakater.com/IngressURLTemplate: '{{.Service}}.{{.Namespace}}.{{.Domain}}'
+          xposer.stakater.com/annotations: |-
+            kubernetes.io/ingress.class: internal-ingress
+            ingress.kubernetes.io/force-ssl-redirect: true
+            exposeIngressUrl: globally

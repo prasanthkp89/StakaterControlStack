@@ -1,0 +1,65 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: stakater-control-external-ingress
+  namespace: control
+spec:
+  releaseName: stakater-control-external-ingress
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com 
+    name: nginx-ingress
+    version: 1.1.5
+  values:
+    nameOverride: stakater-control-external
+    fullnameOverride: stakater-control-external
+    revisionHistoryLimit: 3
+    controller:
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "app"
+        effect: "NoSchedule"
+      publishService:
+        enabled: true
+        pathOverride: "control/stakater-control-external-controller"
+      ingressClass: external-ingress
+      stats:
+        enabled: "true"
+      metrics:
+        enabled: "true"
+        service:
+          annotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "10254"
+          labels:
+            k8s-app: external-ingress
+      config:
+        use-proxy-protocol: "false"
+        enable-opentracing: "false"        
+      replicaCount: 2
+      podAnnotations: 
+        scheduler.alpha.kubernetes.io/critical-pod: "true"
+      image:  
+        pullPolicy: Always
+      readinessProbe:
+        port: 10254
+        initialDelaySeconds: 10
+        timeoutSeconds: 5
+      livenessProbe:
+        port: 10254
+      extraArgs:
+        annotations-prefix: ingress.kubernetes.io
+      service:
+        labels:
+          # dns: "route53"   Define if AWS
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: REPLACE_DOMAIN_NAME
+          domainName: "REPLACE_DOMAIN_NAME"
+          service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
+          service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+          service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+          service.beta.kubernetes.io/aws-load-balancer-ssl-cert: REPLACE_SSL_CERT_EXTERNAL
+        type: LoadBalancer
+        targetPorts:
+          http: 80
+          https: 80

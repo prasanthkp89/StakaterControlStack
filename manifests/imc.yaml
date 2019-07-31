@@ -1,0 +1,42 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: stakater-control-imc
+  namespace: control
+spec:
+  releaseName: stakater-control-imc
+  chart:
+    repository: https://stakater.github.io/stakater-charts/
+    name: ingressmonitorcontroller
+    version: 1.0.76
+  values:
+    ingressMonitorController:
+      watchNamespace: "control"
+      mount: "configMap"
+      logLevel: info
+      logFormat: text
+      matchLabels:
+        group: com.stakater.platform
+        provider: stakater
+      deployment:
+        labels:
+          version: "v1.0.76"
+        annotations:
+          configmap.reloader.stakater.com/reload: ingressmonitorcontroller
+      image:
+        name: stakater/ingressmonitorcontroller
+        tag: "v1.0.76"
+        pullPolicy: IfNotPresent
+      configFilePath: /etc/IngressMonitorController/config.yaml
+      data:
+        config.yaml: |-
+          providers: 
+            REPLACE_MONITOR_PROVIDER_CONFIG
+          enableMonitorDeletion: true
+          monitorNameTemplate: "stakater-{{.Namespace}}-{{.IngressName}}" 
+          secrets: {}
+          # - variable: environment-variable-name	
+          #   name: secret-name
+          #   key: secret-key          
+          # how often (in seconds) monitors should be synced to their Kubernetes resources (0 = disabled)
+          resyncPeriod: 0
