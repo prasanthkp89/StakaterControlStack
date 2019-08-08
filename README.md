@@ -40,6 +40,7 @@ kubectl apply -f . -n control
 9. It will take 3-4 minutes for kubernetes to completely reflect all the changes on the dasboard.
 
 # Variables to replace
+REPLACE_EFS_ID: EFS id on AWS
 
 REPLACE_DOMAIN_NAME: Domain name e.g. stakater.com
 

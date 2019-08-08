@@ -38,7 +38,7 @@ spec:
     ## https://github.com/kubernetes-incubator/external-storage/tree/master/aws/efs#deployment
     ##
     efsProvisioner:
-      efsFileSystemId: fs-f6d1425f
+      efsFileSystemId: REPLACE_EFS_ID
       awsRegion: us-west-2
       path: /
       provisionerName: example.com/aws-efs
