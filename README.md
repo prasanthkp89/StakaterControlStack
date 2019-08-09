@@ -65,7 +65,7 @@ REPLACE_MONITOR_PROVIDER_CONFIG: Config for Monitor provider for IMC
 REPLACE_PROVISIONER:
     AWS:   kubernetes.io/aws-ebs
     Azure: kubernetes.io/azure-disk
-    IBM:   kubernetes.io/glusterfs
+    IBM:   ibm.io/ibmc-block
 
 REPLACE_PARAMETERS:
 AWS:
