@@ -1,0 +1,27 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: stakater-control-xposer
+  namespace: control
+spec:
+  releaseName: stakater-control-xposer
+  chart:
+    repository: https://stakater.github.io/stakater-charts/
+    name: xposer
+    version: 0.0.17
+  values:
+    xposer:        
+      configFilePath: /configs/config.yaml
+      watchGlobally: true
+      exposeServiceURL: globally
+      config:
+        domain: REPLACE_DOMAIN_NAME
+        ingressURLTemplate: "{{.Service}}.{{.Namespace}}.{{.Domain}}"
+        ingressURLPath: /
+        ingressNameTemplate: "{{.Service}}-{{.Namespace}}"
+        tls: false
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "app"
+        effect: "NoSchedule"

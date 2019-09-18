@@ -1,0 +1,14 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: stakater-control-reloader
+  namespace: control
+spec:
+  releaseName: stakater-control-reloader
+  chart:
+    repository: https://stakater.github.io/stakater-charts/
+    name: reloader
+    version: 0.0.32
+  values:
+    reloader:
+      watchGlobally: true

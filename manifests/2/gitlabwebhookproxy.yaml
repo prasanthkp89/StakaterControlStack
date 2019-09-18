@@ -1,0 +1,42 @@
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: stakater-control-gitlabwebhookproxy
+  namespace: control
+spec:
+  releaseName: stakater-control-gitlabwebhookproxy
+  chart:
+    repository: https://stakater.github.io/stakater-charts/
+    name: gitwebhookproxy
+    version: 0.2.64
+  values:
+    gitWebhookProxy:
+      useCustomName: true
+      customName: gitlabwebhookproxy
+      image:
+        name: stakater/gitwebhookproxy
+        tag: "v0.2.64"
+        pullPolicy: IfNotPresent
+      config:
+        provider: gitlab
+        upstreamURL: "https://jenkins.REPLACE_WEBHOOK_NAMESPACE.REPLACE_WEBHOOK_DOMAIN_NAME"
+        allowedPaths: "/github-webhook,/project"
+        secret: ""
+        ignoredUsers: "carbook.bot"
+      service:
+        labels:
+          expose: "true"
+        annotations:
+          config.xposer.stakater.com/Domain: REPLACE_DOMAIN_NAME
+          config.xposer.stakater.com/IngressNameTemplate: '{{.Service}}-{{.Namespace}}'
+          config.xposer.stakater.com/IngressURLTemplate: '{{.Service}}.{{.Namespace}}.{{.Domain}}'
+          xposer.stakater.com/annotations: |-
+            kubernetes.io/ingress.class: external-ingress
+            ingress.kubernetes.io/force-ssl-redirect: true
+            monitor.stakater.com/enabled: true
+            exposeIngressUrl: locally
+        ports:
+          - name: http
+            port: 80
+            protocol: TCP
+            targetPort: 8080
